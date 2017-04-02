@@ -38,7 +38,7 @@ enum Control
 struct Ace 
 {
       const char *groupId;
-      const int fileId;
+      const char *fileId;
       const char *permissions[3];
 };
 
@@ -91,8 +91,8 @@ class StudentGrade
       ~StudentGrade();
       string getLetterGrade();               // output letter grade B+
       float getNumberGrade();                // integral number grade 88
-      void displayScores(Ace filePermissions, User userSignedIn); // display scores on screen
-      void editScores(User userSignedIn);    // interactively edit score
+      void displayScores(Ace* filePermissions, User userSignedIn); // display scores on screen
+      void editScores(Ace* filePermissions, User userSignedIn);    // interactively edit score
       void setScore(int iScore, float score);
       float getScore(int iScore);
       void setWeight(int iScore, float weight);
@@ -257,7 +257,7 @@ void StudentGrade::editScore(int iScoreEdit)
 /*********************************************
  * Edit scores until user says he is done
  *******************************************/
-void StudentGrade::editScores(User userSignedIn)
+void StudentGrade::editScores(Ace* filePermissions, User userSignedIn)
 {
       // Give the user some feedback
       cout << "Editing the scores of "
@@ -340,7 +340,7 @@ void StudentGrade::editScores(User userSignedIn)
 /************************************************
  * Display scores
  ***********************************************/
-void StudentGrade::displayScores(Ace filePermissions, User userSignedIn)
+void StudentGrade::displayScores(Ace* filePermissions, User userSignedIn)
 {
       if (scores.size() == 0)
             return;
@@ -364,8 +364,9 @@ void StudentGrade::displayScores(Ace filePermissions, User userSignedIn)
       }
 
       // this will display the scores.
-      if (name == userSignedIn.name && canRead || name == userSignedIn.fullName && canRead ||
-          userSignedIn.userGroup == "PROFESSOR" && canRead || userSignedIn.userGroup == "GRADER" && canRead)
+      // if (name == userSignedIn.name && canRead || name == userSignedIn.fullName && canRead ||
+      //     userSignedIn.userGroup == "PROFESSOR" && canRead || userSignedIn.userGroup == "GRADER" && canRead)
+       if (name == userSignedIn.name || canRead || name == userSignedIn.fullName)
       {
             // name
 
@@ -450,8 +451,8 @@ class Interface
     public:
       Interface();
 
-      void display(Ace filePermissions, User userSignedIn);
-      void interact(Ace filePermissions, User userSingedIn);
+      void display(Ace* filePermissions, User userSignedIn);
+      void interact(Ace* filePermissions, User userSingedIn);
 
     private:
       int promptForStudent();
@@ -494,13 +495,13 @@ int Interface::promptForStudent()
 /***********************************************
  * update the student records interactively
  ***********************************************/
-void Interface::interact(Ace filePermissions, User userSignedIn)
+void Interface::interact(Ace* filePermissions, User userSignedIn)
 {
       int iSelected;
       while (-1 != (iSelected = promptForStudent()))
       {
             // edit grades as necessary
-            students[iSelected].editScores(userSignedIn);
+            students[iSelected].editScores(filePermissions, userSignedIn);
 
             // show the results
             students[iSelected].displayScores(filePermissions, userSignedIn);
@@ -529,7 +530,7 @@ Interface::Interface()
  * DISPLAY
  * Display stuff
  *************************************************/
-void Interface::display(Ace filePermissions, User userSignedIn)
+void Interface::display(Ace* filePermissions, User userSignedIn)
 {
       for (int i = 0; i < students.size(); i++)
             students[i].displayScores(filePermissions, userSignedIn);
@@ -540,20 +541,20 @@ void Interface::display(Ace filePermissions, User userSignedIn)
  * Ace
  * All the permissions currently in the system
  *************************************************************/
-const Ace filePermissions[] = 
+Ace filePermissions[] = 
 {
-      {"STUDENT", 1, {}},
-      {"GRADER", 1, {"WRITE"}},
-      {"PROFESSOR", 1, {"READ", "WRITE"}},
-      {"PUBLIC", 1, {}},
-      {"STUDENT", 2, {}},
-      {"GRADER", 2, {"WRITE"}},
-      {"PROFESSOR", 2, {"READ", "WRITE"}},
-      {"PUBLIC", 2, {}},
-      {"STUDENT", 3, {}},
-      {"GRADER", 3, {"WRITE"}},
-      {"PROFESSOR", 3, {"READ", "WRITE"}},
-      {"PUBLIC", 3, {}}
+      {"STUDENT", "1", {}},
+      {"GRADER", "1", {"WRITE"}},
+      {"PROFESSOR", "1", {"READ", "WRITE"}},
+      {"PUBLIC", "1", {}},
+      {"STUDENT", "2", {}},
+      {"GRADER", "2", {"WRITE"}},
+      {"PROFESSOR", "2", {"READ", "WRITE"}},
+      {"PUBLIC", "2", {}},
+      {"STUDENT", "3", {}},
+      {"GRADER", "3", {"WRITE"}},
+      {"PROFESSOR", "3", {"READ", "WRITE"}},
+      {"PUBLIC", "3", {}}
 };
 
 /**************************************************************
