@@ -266,9 +266,27 @@ void StudentGrade::editScores(Ace* filePermissions, User userSignedIn)
 
       // display score list
       cout << "Score list\n";
-      // cout << userSignedIn.name << endl;
-      // cout << userSignedIn.userGroup << endl;
-      if (name == userSignedIn.name || userSignedIn.userGroup == "GRADER" || name == userSignedIn.fullName)
+
+          bool canWrite;
+
+      for (int i = 0; i < sizeof(filePermissions) / sizeof(Ace); i++)
+      {
+            if (userSignedIn.userGroup == string(filePermissions[i].groupId) && 
+                string(filePermissions[i].fileId) == currentFileId)
+            {
+                  for (int j = 0; j < 3; j++)
+                  {
+                        if (string(filePermissions[i].permissions[j]) == "WRITE")
+                        {
+                              canWrite = true;
+                        }
+                  }
+            }
+         
+      }
+
+      // this will edit the scores.
+       if (canWrite)
       {
             cout << "\tScore \tWeight\n";
             for (int iScore = 0; iScore < scores.size(); iScore++)
@@ -287,7 +305,7 @@ void StudentGrade::editScores(Ace* filePermissions, User userSignedIn)
       }
       else
       {
-
+             cout << "\tScore \tWeight\n";
             for (int iScore = 0; iScore < scores.size(); iScore++)
             {
                   cout << "(" << iScore + 1 << ")"
@@ -364,9 +382,7 @@ void StudentGrade::displayScores(Ace* filePermissions, User userSignedIn)
       }
 
       // this will display the scores.
-      // if (name == userSignedIn.name && canRead || name == userSignedIn.fullName && canRead ||
-      //     userSignedIn.userGroup == "PROFESSOR" && canRead || userSignedIn.userGroup == "GRADER" && canRead)
-       if (name == userSignedIn.name || canRead || name == userSignedIn.fullName)
+    if (name == userSignedIn.name || canRead || name == userSignedIn.fullName)
       {
             // name
 
@@ -498,16 +514,31 @@ int Interface::promptForStudent()
 void Interface::interact(Ace* filePermissions, User userSignedIn)
 {
       int iSelected;
-      while (-1 != (iSelected = promptForStudent()))
-      {
-            // edit grades as necessary
-            students[iSelected].editScores(filePermissions, userSignedIn);
 
-            // show the results
-            students[iSelected].displayScores(filePermissions, userSignedIn);
+       if(userSignedIn.userGroup == "STUDENT")
+       {
+            for(int i = 0; i< students.size(); i++)
+            {
+                  if(userSignedIn.fullName == students[i].getName())
+                  {
+                        iSelected = i;
+                  }
+            }
 
-            // visual separater
-            cout << "---------------------------------------------------\n";
+          students[iSelected].displayScores(filePermissions, userSignedIn);
+       } else {
+         
+            while (-1 != (iSelected = promptForStudent()))
+            {
+                  // edit grades as necessary
+                  students[iSelected].editScores(filePermissions, userSignedIn);
+
+                  // show the results
+                  students[iSelected].displayScores(filePermissions, userSignedIn);
+
+                  // visual separater
+                  cout << "---------------------------------------------------\n";
+            }
       }
 
       return;
@@ -565,8 +596,8 @@ const User users[] =
     {
         {"Bob", "passwordBob", "GRADER"},
         {"Hans", "passwordHans", "GRADER"},
-        {"Sam", "passwordSam", "STUDENT"},
-        {"Sue", "passwordSue", "STUDENT"},
+        {"Sam", "passwordSam", "STUDENT", "Samual Stevenson"},
+        {"Sue", "passwordSue", "STUDENT", "Susan Bakersfield"},
         {"Sly", "passwordSly", "STUDENT", "Sylvester Stallone"}};
 
 #define ID_INVALID -1
@@ -612,11 +643,8 @@ int main()
       User userSignedIn;
       authenticate(userSignedIn);
 
-      // cout << userSignedIn.name << endl;
-      // cout << userSignedIn.userGroup << endl;
 
       Interface interface;
-
       interface.interact(filePermissions, userSignedIn);
 
       return 0;
