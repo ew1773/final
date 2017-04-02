@@ -348,10 +348,12 @@ void StudentGrade::editScores(Ace* filePermissions, User userSignedIn)
                   cout << "Do you want to edit another score? (Y/N) ";
                   cin >> response;
                   done = (response == 'N' || response == 'n');
+
             }
             else
                   done = true;
       }
+                  cout << "Unable to read from the resources for " << name << endl;
       return;
 }
 
@@ -363,6 +365,7 @@ void StudentGrade::displayScores(Ace* filePermissions, User userSignedIn)
       if (scores.size() == 0)
             return;
 
+            // cerr << "random";
       bool canRead;
 
       for (int i = 0; i < sizeof(filePermissions) / sizeof(Ace); i++)
@@ -526,19 +529,29 @@ void Interface::interact(Ace* filePermissions, User userSignedIn)
             }
 
           students[iSelected].displayScores(filePermissions, userSignedIn);
-       } else {
-         
+       } else if(userSignedIn.userGroup == "GRADER")
+       {
             while (-1 != (iSelected = promptForStudent()))
             {
                   // edit grades as necessary
                   students[iSelected].editScores(filePermissions, userSignedIn);
-
+                  // cerr << iSelected;
+            }
+      } else {
+             // cerr << "1: " << iSelected << endl;
+                  // edit grades as necessary
+                  students[iSelected].editScores(filePermissions, userSignedIn);
+                  // int something = iSelected;
+                  // cerr << ""; --nope
+                  // iSelected += 1; --nope
+                  // iSelected -= 1; --nope
+                  cerr << iSelected << endl;
                   // show the results
                   students[iSelected].displayScores(filePermissions, userSignedIn);
-
+                  // cerr << "3: " << iSelected << endl;
                   // visual separater
                   cout << "---------------------------------------------------\n";
-            }
+            // cerr << "4: " << iSelected << endl;
       }
 
       return;
